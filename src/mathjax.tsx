@@ -108,91 +108,87 @@ export function MathJax({
               throw Error(
                 "Render mode 'pre' requires 'typesettingOptions' prop with 'fn' property to be set on MathJax element or in the MathJaxContext"
               )
-            if (mjPromise.version === 2)
-              throw Error(
-                "Render mode 'pre' only available with MathJax 3, and version 2 is currently in use"
-              )
           }
           if (usedRenderMode === "post" || text !== lastChildren.current) {
             if (!typesetting.current) {
               typesetting.current = true
-              if (mjPromise.version === 3) {
-                mjPromise.promise
-                  .then((mathJax) => {
-                    if (usedRenderMode === "pre") {
-                      if (typesettingOptions!.fn.endsWith("Promise"))
-                        mathJax.startup.promise
-                          .then(() =>
-                            mathJax[usedConversionOptions!.fn](text!, {
-                              ...(usedConversionOptions?.options || {}),
-                              display: !inline
-                            })
-                          )
-                          .then((output) => {
-                            if (typeof output === 'string') {
-                              // Handle string output (for mml functions)
-                              if (ref.current !== null) ref.current.innerHTML = output
-                              onTypesetDone()
-                            } else {
-                              // Handle HTMLElement output
-                              lastChildren.current = text!
-                              mathJax.startup.document.clear()
-                              mathJax.startup.document.updateDocument()
-                              if (ref.current !== null) ref.current.innerHTML = output.outerHTML
-                              onTypesetDone()
-                            }
+              mjPromise.promise
+                .then((mathJax) => {
+                  if (usedRenderMode === "pre") {
+                    if (typesettingOptions!.fn.endsWith("Promise"))
+                      mathJax.startup.promise
+                        .then(() =>
+                          mathJax[usedConversionOptions!.fn](text!, {
+                            ...(usedConversionOptions?.options || {}),
+                            display: !inline
                           })
-                          .catch((err) => {
+                        )
+                        .then((output) => {
+                          if (typeof output === 'string') {
+                            // Handle string output (for mml functions)
+                            if (ref.current !== null) ref.current.innerHTML = output
                             onTypesetDone()
-                            throw Error(typesettingFailed(err))
-                          })
-                      else
-                        mathJax.startup.promise
-                          .then(() => {
-                            const output = mathJax[usedConversionOptions!.fn](text!, {
-                              ...(usedConversionOptions?.options || {}),
-                              display: !inline
-                            })
-                            return Promise.resolve(output)
-                          })
-                          .then((output) => {
-                            if (typeof output === 'string') {
-                              // Handle string output (for mml functions)
-                              if (ref.current !== null) ref.current.innerHTML = output
-                              onTypesetDone()
-                            } else {
-                              // Handle HTMLElement output
-                              lastChildren.current = text!
-                              mathJax.startup.document.clear()
-                              mathJax.startup.document.updateDocument()
-                              if (ref.current !== null) ref.current.innerHTML = output.outerHTML
-                              onTypesetDone()
-                            }
-                          })
-                          .catch((err) => {
+                          } else {
+                            // Handle HTMLElement output
+                            lastChildren.current = text!
+                            mathJax.startup.document.clear()
+                            mathJax.startup.document.updateDocument()
+                            if (ref.current !== null) ref.current.innerHTML = output.outerHTML
                             onTypesetDone()
-                            throw Error(typesettingFailed(err))
+                          }
+                        })
+                        .catch((err) => {
+                          onTypesetDone()
+                          throw Error(typesettingFailed(err))
+                        })
+                    else
+                      mathJax.startup.promise
+                        .then(() => {
+                          const output = mathJax[usedConversionOptions!.fn](text!, {
+                            ...(usedConversionOptions?.options || {}),
+                            display: !inline
                           })
-                    }
-                  })
-                  .catch((err) => {
-                    onTypesetDone()
-                    throw Error(typesettingFailed(err))
-                  })
-              } else {
-                // version 2
-                mjPromise.promise
-                  .then((mathJax) => {
-                    if (ref.current) {
-                      mathJax.Hub.Queue(["Typeset", mathJax.Hub, ref.current])
-                      mathJax.Hub.Queue([onTypesetDone])
-                    }
-                  })
-                  .catch((err) => {
-                    onTypesetDone()
-                    throw Error(typesettingFailed(err))
-                  })
-              }
+                          return Promise.resolve(output)
+                        })
+                        .then((output) => {
+                          if (typeof output === 'string') {
+                            // Handle string output (for mml functions)
+                            if (ref.current !== null) ref.current.innerHTML = output
+                            onTypesetDone()
+                          } else {
+                            // Handle HTMLElement output
+                            lastChildren.current = text!
+                            mathJax.startup.document.clear()
+                            mathJax.startup.document.updateDocument()
+                            if (ref.current !== null) ref.current.innerHTML = output.outerHTML
+                            onTypesetDone()
+                          }
+                        })
+                        .catch((err) => {
+                          onTypesetDone()
+                          throw Error(typesettingFailed(err))
+                        })
+                  } else {
+                    // renderMode "post"
+                    mathJax.startup.promise
+                      .then(() => {
+                        if (ref.current) {
+                          mathJax.typesetClear([ref.current])
+                          return mathJax.typesetPromise([ref.current])
+                        }
+                        return Promise.resolve()
+                      })
+                      .then(onTypesetDone)
+                      .catch((err) => {
+                        onTypesetDone()
+                        throw Error(typesettingFailed(err))
+                      })
+                  }
+                })
+                .catch((err) => {
+                  onTypesetDone()
+                  throw Error(typesettingFailed(err))
+                })
             }
           }
         } else

@@ -1,14 +1,14 @@
 # nextjs-mathjax
 
-Modern MathJax integration for Next.js 15+ with App Router support. Optimized for server-side rendering and client-side hydration.
+![MathJax Examples](https://raw.githubusercontent.com/ksvanquy/nextjs-mathjax/main/examples/examples.png)
 
- ![MathJax Examples](examples/examples.png)
+Modern MathJax 3 integration for Next.js 15+ with App Router support. Optimized for server-side rendering and client-side hydration.
 
 ## 🚀 Features
 - Supports Next.js App Router (pages/app)
 - Compatible with SSR and client-side hydration
 - Easily render various formula types: inline, display, matrix, align, ...
-- Customizable MathJax configuration (v2/v3)
+- Built on MathJax 3 (modern, fast, and lightweight)
 - TypeScript support
 
 ## 🛠️ Installation
@@ -69,11 +69,14 @@ export default function Page() {
 
 ## ⚙️ Advanced Configuration
 
-You can pass props to `MathJaxProvider` to customize version, config, ...
+You can pass props to `MathJaxProvider` to customize MathJax 3 configuration:
 
 ```tsx
-<MathJaxProvider version={3} config={{
-  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+<MathJaxProvider config={{
+  tex: { 
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  }
 }}>
   ...
 </MathJaxProvider>
@@ -81,14 +84,22 @@ You can pass props to `MathJaxProvider` to customize version, config, ...
 
 ## 📚 API Reference
 ### `MathJaxProvider` props:
-- `version`: 2 | 3 (default: 3)
-- `config`: MathJax v2/v3 configuration
+- `config`: MathJax 3 configuration object
+- `src`: Custom MathJax 3 CDN URL (optional)
+- `asyncLoad`: Load MathJax asynchronously (default: false)
+- `onStartup`: Callback when MathJax is ready
+- `onLoad`: Callback when MathJax script is loaded
+- `onError`: Error handler
 - `children`: ReactNode
 
 ### `MathJax` props:
 - `inline`: boolean (inline or display mode)
 - `text`: string (formula content, if not using children)
 - `children`: ReactNode (latex formula)
+- `dynamic`: boolean (re-render on prop changes)
+- `hideUntilTypeset`: "first" | "every" (hide content until typeset)
+- `onInitTypeset`: Callback after first typeset
+- `onTypeset`: Callback after each typeset
 
 ## 📝 License
 MIT

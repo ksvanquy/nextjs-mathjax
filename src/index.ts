@@ -4,8 +4,6 @@ export { MathJax } from './mathjax'
 
 // Types
 export type {
-  MathJax2Config,
-  MathJax2Object,
   MathJax3Config,
   MathJax3Object,
   MathJaxOverrideableProps,

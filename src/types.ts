@@ -51,27 +51,6 @@ export interface MathJax3Config {
   }
 }
 
-// MathJax 2 types
-export interface MathJax2Object {
-  Hub: {
-    Queue: (commands: any[]) => void
-  }
-}
-
-export interface MathJax2Config {
-  tex2jax?: {
-    inlineMath?: string[][]
-    displayMath?: string[][]
-  }
-  asciimath2jax?: {
-    delimiters?: string[][]
-  }
-  "HTML-CSS"?: {
-    availableFonts?: string[]
-    preferredFont?: string
-  }
-}
-
 // Common types
 export type TypesettingFunction = 
   | "tex2chtml"
@@ -107,10 +86,7 @@ export interface MathJaxOverrideableProps {
   renderMode?: "pre" | "post"
 }
 
-export type MathJaxSubscriberProps = ({
-  version: 2
-  promise: Promise<MathJax2Object>
-} | {
+export type MathJaxSubscriberProps = {
   version: 3
   promise: Promise<MathJax3Object>
-}) & MathJaxOverrideableProps 
+} & MathJaxOverrideableProps 

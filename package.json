@@ -1,6 +1,6 @@
 {
   "name": "nextjs-mathjax",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "description": "Modern MathJax 3 integration for Next.js 15+ with App Router support. Optimized for server-side rendering and client-side hydration.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -42,12 +42,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/nextjs-mathjax.git"
+    "url": "git+https://github.com/ksvanquy/nextjs-mathjax.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/nextjs-mathjax/issues"
+    "url": "https://github.com/ksvanquy/nextjs-mathjax/issues"
   },
-  "homepage": "https://github.com/yourusername/nextjs-mathjax#readme",
+  "homepage": "https://github.com/ksvanquy/nextjs-mathjax#readme",
   "peerDependencies": {
     "next": ">=15.0.0",
     "react": ">=18.0.0",

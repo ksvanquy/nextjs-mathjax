@@ -11,6 +11,17 @@ Modern MathJax 3 integration for Next.js 15+ with App Router support. Optimized 
 - ✅ **Lightweight**: Minimal bundle impact
 - ✅ **Flexible**: Multiple rendering modes and configuration options
 
+## Preview
+
+### Math Examples Preview
+
+![Math Examples Preview](previews/math-examples.png)
+
+### Chemistry Examples Preview
+
+![Chemistry Examples Preview](previews/chemical-examples.png)
+
+
 ## Installation
 
 ```bash
@@ -521,3 +532,4 @@ export default function HomePage() {
 - Only use in Client Components (`"use client"`).
 - Works with any HTML string containing LaTeX/MathJax expressions.
 - Supports advanced math, physics, chemistry, color, matrix, etc. by loading the right MathJax extensions.
+

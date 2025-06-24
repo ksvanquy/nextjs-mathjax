@@ -375,3 +375,149 @@ MIT
 **Author:** Nguyễn Văn Quý
 
 Contribute, report issues or suggestions at: https://github.com/ksvanquy/nextjs-mathjax
+
+## Usage with Next.js App Router (with src directory)
+
+This guide is for projects using **Next.js App Router** (with the `src` directory structure).
+
+### 1. Install
+
+```bash
+npm install nextjs-mathjax
+# or
+yarn add nextjs-mathjax
+```
+
+---
+
+### 2. Create a MathJax Client Component
+
+Create the file: `src/components/MathJaxDemoClient.tsx`
+
+```tsx
+"use client";
+
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+
+declare global {
+  interface Window {
+    MathJax?: {
+      typesetPromise?: (elements?: (HTMLElement | string)[]) => Promise<void>;
+    };
+  }
+}
+
+const MathJaxContext = dynamic(
+  () => import("nextjs-mathjax").then((mod) => mod.MathJaxContext),
+  { ssr: false }
+);
+
+export default function MathJaxDemoClient({ html }: { html: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout | null = null;
+    function tryTypeset() {
+      if (
+        window.MathJax &&
+        window.MathJax.typesetPromise &&
+        containerRef.current
+      ) {
+        window.MathJax.typesetPromise([containerRef.current]);
+      } else {
+        timeout = setTimeout(tryTypeset, 100);
+      }
+    }
+    tryTypeset();
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [html]);
+
+  return (
+    <MathJaxContext
+      config={{
+        loader: {
+          load: [
+            "[tex]/ams",
+            "[tex]/newcommand",
+            "[tex]/require",
+            "[tex]/mhchem",
+            "[tex]/color",
+            "[tex]/physics",
+            "[tex]/boldsymbol",
+            "[tex]/braket",
+            "[tex]/bbox",
+            "[tex]/html",
+            "[tex]/upgreek",
+            "[tex]/unicode",
+            "[tex]/mathtools",
+          ],
+        },
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+          processEscapes: true,
+          processEnvironments: true,
+        },
+        chtml: {
+          displayAlign: "center",
+          displayIndent: "0em",
+        },
+        svg: {
+          fontCache: "global",
+        },
+      }}
+    >
+      <div ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} />
+    </MathJaxContext>
+  );
+}
+```
+
+---
+
+### 3. Use in your App Router page
+
+Edit `src/app/page.tsx` (or any page in `src/app`):
+
+```tsx
+import MathJaxDemoClient from "../components/MathJaxDemoClient";
+
+const mathHtml = `
+  <div>
+    <h2>Physics Example</h2>
+    <p>Schrödinger equation: \\(i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi\\)</p>
+    <h2>Chemistry Example</h2>
+    <p>Chemical reaction: \\(\ce{2H2 + O2 -> 2H2O}\\)</p>
+    <h2>Matrix</h2>
+    <div>\\[\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}\\]</div>
+    <h2>Advanced Math</h2>
+    <div>\\[\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}\\]</div>
+  </div>
+`;
+
+export default function HomePage() {
+  return (
+    <main>
+      <h1>MathJax Demo</h1>
+      <MathJaxDemoClient html={mathHtml} />
+    </main>
+  );
+}
+```
+
+---
+
+### 4. Notes
+
+- Only use in Client Components (`"use client"`).
+- Works with any HTML string containing LaTeX/MathJax expressions.
+- Supports advanced math, physics, chemistry, color, matrix, etc. by loading the right MathJax extensions.

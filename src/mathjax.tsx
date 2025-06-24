@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ComponentPropsWithoutRef, useEffect, useLayoutEffect, useRef } from "react"
+import React, { ComponentPropsWithoutRef, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useMathJax } from "./context"
 import type { MathJaxOverrideableProps } from "./types"
 
@@ -11,6 +11,8 @@ export interface MathJaxProps extends MathJaxOverrideableProps {
   text?: string
   dynamic?: boolean
   children?: React.ReactNode
+  suppressHydrationWarning?: boolean
+  clientOnly?: boolean
 }
 
 const typesettingFailed = (err: any) =>
@@ -26,8 +28,13 @@ export function MathJax({
   typesettingOptions,
   renderMode,
   children,
+  suppressHydrationWarning = true,
+  clientOnly = false,
   ...rest
 }: MathJaxProps & ComponentPropsWithoutRef<"span">) {
+  const [isClient, setIsClient] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
+
   // in render mode "pre", this keeps track of the last value on text to determine when we need to run typesetting
   const lastChildren = useRef<string>("")
 
@@ -48,6 +55,16 @@ export function MathJax({
 
   // mutex to signal when typesetting is ongoing (without it we may have race conditions)
   const typesetting = useRef(false)
+
+  // Check if we're on client side
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Mark as hydrated after first render
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   // handler for initial loading
   const checkInitLoad = () => {
@@ -84,6 +101,23 @@ export function MathJax({
     ref.current.style.visibility = "hidden"
   }
 
+  // If clientOnly and not on client, render placeholder
+  if (clientOnly && !isClient) {
+    return (
+      <span
+        {...rest}
+        style={{
+          display: inline ? "inline" : "block",
+          ...rest.style,
+          visibility: "hidden"
+        }}
+        ref={ref}
+      >
+        {children}
+      </span>
+    )
+  }
+
   /**
    * Effect for typesetting, important that this does not trigger a new render and runs as seldom as possible (only
    * when needed). It is good that it is in an effect because then we are sure that the DOM to be is ready and
@@ -96,6 +130,9 @@ export function MathJax({
    */
   const effectToUse = typeof window !== "undefined" ? useLayoutEffect : useEffect
   effectToUse(() => {
+    // Only run typesetting on client side and after hydration
+    if (!isClient || !isHydrated) return
+
     if (usedDynamic || !initLoad.current) {
       if (ref.current !== null) {
         if (mjPromise) {
@@ -202,6 +239,7 @@ export function MathJax({
   return (
     <span
       {...rest}
+      suppressHydrationWarning={suppressHydrationWarning}
       style={{
         display: inline ? "inline" : "block",
         ...rest.style,

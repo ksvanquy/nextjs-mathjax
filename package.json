@@ -1,6 +1,6 @@
 {
   "name": "nextjs-mathjax",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Modern MathJax 3 integration for Next.js 15+ with App Router support. Optimized for server-side rendering and client-side hydration.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
